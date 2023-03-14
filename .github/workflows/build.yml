@@ -1,0 +1,31 @@
+name: Compile
+
+on:
+  release:
+    types: [created]
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+  GLIBC_VERSION: 2.36
+  PREFIX_DIR: /usr/glibc-compat
+
+jobs:
+  deploy:
+    runs-on: buildjet-2vcpu-ubuntu-2204-arm
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install make dependencies
+        run: |
+          apt-get -q update
+          apt-get -qy install \
+            build-essential python3 \
+            bison gawk gettext texinfo \
+            wget openssl
+
+      - name: Compile
+        run: |
+          mkdir -p /glibc-build
+          cp configparams /glibc-build/configparams
+          chmod +x ./builder
+          ./builder
